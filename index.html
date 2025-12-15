@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zetra Verifier - Professional Certificate Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Georgia', serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            border: 5px solid #d4af37;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 36px;
+            color: #1a237e;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 16px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="file"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        }
+
+        input[type="file"] {
+            padding: 40px 20px;
+            border: 3px dashed #1a237e;
+            background: #f8f9ff;
+            text-align: center;
+            color: #1a237e;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(26, 35, 126, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .success {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            border: 2px solid #0ea5e9;
+            text-align: center;
+        }
+
+        .success.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .cert-id {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 700;
+            font-size: 15px;
+            color: #1a237e;
+            border: 2px dashed #0ea5e9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                border-width: 3px;
+            }
+            .logo h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>🏆 Zetra Verifier</h1>
+            <p>Create Professional Ownership Certificates</p>
+        </div>
+
+        <form id="certificateForm">
+            <div class="form-group">
+                <label>📁 Upload Your Work (Image/PDF/Document)</label>
+                <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx">
+            </div>
+
+            <div class="form-group">
+                <label for="ownerName">👤 Creator's Name</label>
+                <input type="text" id="ownerName" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ownerEmail">📧 Email Address</label>
+                <input type="email" id="ownerEmail" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="workTitle">🎨 Work Title</label>
+                <input type="text" id="workTitle" placeholder="Logo Design for Startup" required>
+            </div>
+
+            <button type="submit" id="generateBtn">
+                🏅 Generate Professional Certificate
+            </button>
+        </form>
+
+        <div class="success" id="successMessage">
+            <strong>✅ Certificate Created Successfully!</strong>
+            <p>Your professional certificate has been downloaded.</p>
+            <div class="cert-id" id="certId"></div>
+            <p style="margin-top: 20px;">
+                <button onclick="resetForm()" style="background: #475569; width: auto; padding: 12px 30px; font-size: 15px; border-radius: 8px;">
+                    Create Another Certificate
+                </button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('certificateForm');
+            const successMessage = document.getElementById('successMessage');
+            const certId = document.getElementById('certId');
+            const generateBtn = document.getElementById('generateBtn');
+            let uploadedFile = null;
+
+            // Handle file upload
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                uploadedFile = e.target.files[0];
+            });
+
+            // Form submission - FIXED: Added preventDefault
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault(); // ⬅️ THIS STOPS PAGE REFRESH
+
+                // Get values WITH VALIDATION
+                const ownerName = document.getElementById('ownerName').value.trim();
+                const ownerEmail = document.getElementById('ownerEmail').value.trim();
+                const workTitle = document.getElementById('workTitle').value.trim();
+
+                // Validate
+                if (!ownerName) {
+                    alert('Please enter your name!');
+                    return;
+                }
+                if (!ownerEmail) {
+                    alert('Please enter your email!');
+                    return;
+                }
+                if (!workTitle) {
+                    alert('Please enter a work title!');
+                    return;
+                }
+
+                // Validate email format
+                if (!isValidEmail(ownerEmail)) {
+                    alert('Please enter a valid email address!');
+                    return;
+                }
+
+                // Disable button
+                generateBtn.disabled = true;
+                generateBtn.textContent = '⏳ Creating Professional Certificate...';
+
+                // Generate certificate ID (NO SPECIAL CHARACTERS)
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+                let certificateId = `ZV-${timestamp.toString(36).toUpperCase()}-${random}`;
+                // Remove any special characters
+                certificateId = certificateId.replace(/[^a-zA-Z0-9-]/g, '');
+
+                // Create file hash
+                const fileHash = uploadedFile ? await createFileHash(uploadedFile) : 'NO_FILE_UPLOADED';
+
+                // Get current date and time
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                const timeStr = now.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+
+                // Clean file name (remove special chars)
+                let fileName = uploadedFile ? uploadedFile.name : 'No file uploaded';
+                fileName = fileName.substring(0, 50); // Limit length
+
+                // Generate PDF
+                await generateProfessionalCertificate({
+                    certificateId: certificateId,
+                    ownerName: ownerName,
+                    ownerEmail: ownerEmail,
+                    workTitle: workTitle,
+                    fileName: fileName,
+                    fileHash: fileHash,
+                    date: dateStr,
+                    time: timeStr,
+                    file: uploadedFile
+                });
+
+                // Show success
+                certId.textContent = `Certificate ID: ${certificateId}`;
+                form.classList.add('hidden');
+                successMessage.classList.add('show');
+
+                // Reset button
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🏅 Generate Professional Certificate';
+            });
+
+            // Email validation
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            // File hash function
+            async function createFileHash(file) {
+                const data = file.name + file.size + file.lastModified + Date.now();
+                let hash = 0;
+                for (let i = 0; i < data.length; i++) {
+                    const char = data.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return Math.abs(hash).toString(16).toUpperCase().padStart(12, '0');
+            }
+
+            // Generate PROFESSIONAL PDF Certificate
+            async function generateProfessionalCertificate(data) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // Page dimensions
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                // ========== DRAW CERTIFICATE FRAME ==========
+                // Outer gold border
+                doc.setDrawColor(212, 175, 55); // Gold color
+                doc.setLineWidth(3);
+                doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+                
+                // Inner decorative border
+                doc.setDrawColor(26, 35, 126); // Dark blue
+                doc.setLineWidth(1);
+                doc.rect(15, 15, pageWidth - 30, pageHeight - 30);
+                
+                // Corner decorations
+                doc.setLineWidth(2);
+                const cornerSize = 20;
+                
+                // Top-left corner
+                doc.line(15, 15, 15 + cornerSize, 15);
+                doc.line(15, 15, 15, 15 + cornerSize);
+                
+                // Top-right corner
+                doc.line(pageWidth - 15, 15, pageWidth - 15 - cornerSize, 15);
+                doc.line(pageWidth - 15, 15, pageWidth - 15, 15 + cornerSize);
+                
+                // Bottom-left corner
+                doc.line(15, pageHeight - 15, 15 + cornerSize, pageHeight - 15);
+                doc.line(15, pageHeight - 15, 15, pageHeight - 15 - cornerSize);
+                
+                // Bottom-right corner
+                doc.line(pageWidth - 15, pageHeight - 15, pageWidth - 15 - cornerSize, pageHeight - 15);
+                doc.line(pageWidth - 15, pageHeight - 15, pageWidth - 15, pageHeight - 15 - cornerSize);
+
+                // ========== HEADER ==========
+                // Decorative line under title
+                doc.setDrawColor(212, 175, 55);
+                doc.setLineWidth(2);
+                doc.line(pageWidth/2 - 40, 45, pageWidth/2 + 40, 45);
+
+                // Main Title
+                doc.setFontSize(36);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(26, 35, 126);
+                doc.text('CERTIFICATE OF OWNERSHIP', pageWidth/2, 40, { align: 'center' });
+
+                // Subtitle
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(100, 100, 100);
+                doc.text('Proof of Original Creation and Intellectual Property', pageWidth/2, 52, { align: 'center' });
+
+                // ========== CERTIFICATE ID & DATE ==========
+                doc.setFontSize(11);
+                doc.setTextColor(80, 80, 80);
+                doc.text(`Certificate ID: ${data.certificateId}`, 25, 65);
+                doc.text(`Issued: ${data.date} • ${data.time}`, pageWidth - 25, 65, { align: 'right' });
+
+                // ========== MAIN CONTENT ==========
+                // Decorative separator
+                doc.setDrawColor(212, 175, 55);
+                doc.setLineWidth(1);
+                doc.line(25, 75, pageWidth - 25, 75);
+
+                // "This certifies that"
+                doc.setFontSize(18);
+                doc.setTextColor(60, 60, 60);
+                doc.text('THIS CERTIFIES THAT', pageWidth/2, 90, { align: 'center' });
+
+                // Creator's Name (Centered and Large)
+                doc.setFontSize(32);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(26, 35, 126);
+                doc.text(data.ownerName, pageWidth/2, 110, { align: 'center' });
+
+                // "is the rightful owner of"
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(80, 80, 80);
+                doc.text('is the original creator and rightful owner of', pageWidth/2, 125, { align: 'center' });
+
+                // Work Title
+                doc.setFontSize(24);
+                doc.setFont(undefined, 'bolditalic');
+                doc.setTextColor(212, 175, 55);
+                
+                // Split long titles
+                const workTitleLines = doc.splitTextToSize(data.workTitle, 150);
+                let workTitleY = 140;
+                workTitleLines.forEach(line => {
+                    doc.text(line, pageWidth/2, workTitleY, { align: 'center' });
+                    workTitleY += 10;
+                });
+
+                // ========== DETAILS BOX ==========
+                const detailsY = workTitleY + 20;
+                
+                // Box background
+                doc.setFillColor(248, 249, 255);
+                doc.rect(25, detailsY, pageWidth - 50, 40, 'F');
+                
+                // Box border
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(0.5);
+                doc.rect(25, detailsY, pageWidth - 50, 40);
+                
+                // Details title
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(26, 35, 126);
+                doc.text('VERIFICATION DETAILS', 30, detailsY + 10);
+
+                // Left column details
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(80, 80, 80);
+                doc.text(`File: ${data.fileName}`, 30, detailsY + 20);
+                doc.text(`Hash: ${data.fileHash}`, 30, detailsY + 28);
+                doc.text(`Email: ${data.ownerEmail}`, 30, detailsY + 36);
+
+                // Right column details
+                doc.text(`Date Issued: ${data.date}`, pageWidth - 30, detailsY + 20, { align: 'right' });
+                doc.text(`Time: ${data.time}`, pageWidth - 30, detailsY + 28, { align: 'right' });
+                doc.text(`Verified: ✓ Digital Seal`, pageWidth - 30, detailsY + 36, { align: 'right' });
+
+                // ========== IMAGE PREVIEW ==========
+                const imagePreviewY = detailsY + 50;
+                
+                if (data.file && data.file.type.startsWith('image/')) {
+                    try {
+                        const imageLoaded = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                try {
+                                    const imgData = e.target.result;
+                                    const imgWidth = 40;
+                                    const imgHeight = 30;
+                                    const imgX = pageWidth/2 - imgWidth/2;
+                                    const imgY = imagePreviewY;
+                                    
+                                    // Add image
+                                    doc.addImage(imgData, 'JPEG', imgX, imgY, imgWidth, imgHeight);
+                                    
+                                    // Image border
+                                    doc.setDrawColor(212, 175, 55);
+                                    doc.setLineWidth(1);
+                                    doc.rect(imgX, imgY, imgWidth, imgHeight);
+                                    
+                                    // Caption
+                                    doc.setFontSize(9);
+                                    doc.setTextColor(100, 100, 100);
+                                    doc.text('WORK PREVIEW', pageWidth/2, imgY + imgHeight + 5, { align: 'center' });
+                                    
+                                    resolve(true);
+                                } catch (imgError) {
+                                    console.log('Image drawing error:', imgError);
+                                    resolve(false);
+                                }
+                            };
+                            reader.onerror = () => resolve(false);
+                            reader.readAsDataURL(data.file);
+                        });
+                        
+                        if (!imageLoaded) {
+                            doc.setFontSize(10);
+                            doc.setTextColor(150, 150, 150);
+                            doc.text('[Image Preview Not Available]', pageWidth/2, imagePreviewY + 15, { align: 'center' });
+                        }
+                    } catch (e) {
+                        console.log('Image processing error:', e);
+                        doc.setFontSize(10);
+                        doc.setTextColor(150, 150, 150);
+                        doc.text('[Image Could Not Be Loaded]', pageWidth/2, imagePreviewY + 15, { align: 'center' });
+                    }
+                } else {
+                    // Show message if no image
+                    doc.setFontSize(10);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text('[No Image Uploaded]', pageWidth/2, imagePreviewY + 10, { align: 'center' });
+                    doc.setFontSize(8);
+                    doc.text('Upload an image for preview', pageWidth/2, imagePreviewY + 17, { align: 'center' });
